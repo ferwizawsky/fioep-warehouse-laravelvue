@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,6 +15,24 @@ class UserController extends Controller
     {
         $data = User::where("search", "like", "%" . $request->name . "%")->paginate($request->limit ?? 10);
         return UserResource::collection($data);
+    }
+
+    public function show($id)
+    {
+        $data = User::find($id);
+        if ($data) {
+            return new UserResource($data);
+        } else {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+    }
+
+
+
+    public function roles()
+    {
+        $data = Role::get();
+        return response()->json(["data" => $data]);
     }
 
     public function store(Request $request)

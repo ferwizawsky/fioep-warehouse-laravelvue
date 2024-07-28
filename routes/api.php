@@ -24,6 +24,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('material', MaterialController::class);
 
 
+    Route::prefix('user')
+        ->middleware('role:5')
+        ->controller(UserController::class)
+        ->group(function () {
+            Route::get('/roles', 'roles');
+            Route::get('/', 'index');
+            Route::get('/{id}', 'show');
+            Route::post('/', 'store');
+            Route::post('/{id}/edit', 'edit');
+            Route::post('/{id}/delete', 'delete');
+        });
+
 
     Route::middleware('role:2|1|3')->group(function () {
         Route::prefix('purchase')
@@ -59,17 +71,6 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-
-Route::prefix('user')
-    ->middleware('auth:sanctum')
-    ->controller(UserController::class)
-    ->group(function () {
-        Route::get('/', 'index');
-        Route::get('/{id}', 'show');
-        Route::post('/', 'store');
-        Route::post('/{id}/edit', 'edit');
-        Route::post('/{id}/delete', 'delete');
-    });
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();

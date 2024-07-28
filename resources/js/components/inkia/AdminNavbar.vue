@@ -35,29 +35,63 @@ import {
 import { useRouter } from "vue-router";
 import { useOption } from "@/stores/option";
 import { useMyFetch } from "@/composables/fetch";
+import { useMaster } from "@/stores/master";
 
 const option = useOption();
+const master = useMaster();
 const notTop = ref(false);
 const list = [
     {
         to: "/admin/dashboard",
         text: "Dashboard",
+        roleId: [1, 2, 5],
+    },
+    // {
+    //     to: "/admin/invoice",
+    //     text: "Invoices",
+    //     roleId: [1, 2, 5],
+    // },
+    {
+        to: "/admin/purchase",
+        text: "Purchase",
+        roleId: [1, 2, 3, 4, 5],
     },
     {
-        to: "/admin/invoice",
-        text: "Invoices",
+        to: "/admin/master",
+        text: "Master Data",
+        roleId: [1, 2, 3, 4, 5],
+    },
+    {
+        to: "/admin/user-management",
+        text: "User Management",
+        roleId: [5],
     },
 ];
 const router = useRouter();
 
 const item = ref();
+
 async function getUser() {
     item.value = {};
     try {
         const { data } = await useMyFetch("GET", `/auth/profile`);
         item.value = { ...data.data };
-        console.log(data);
-        // location.reload();
+        if (item.value?.role_id == 5) {
+            getRoles();
+        }
+        master.getStorage();
+        master.getSupplier();
+        master.getMaterial();
+    } catch (error) {
+        logout();
+    } finally {
+    }
+}
+
+async function getRoles() {
+    try {
+        const { data } = await useMyFetch("GET", `/user/roles`);
+        option.updateRoleList(data.data);
     } catch (error) {
         // logout();
     } finally {
@@ -75,7 +109,13 @@ const handleScroll = () => {
 };
 
 function toggleTheme() {
-    document.documentElement.classList.toggle("dark");
+    if (localStorage.getItem("isDark")) {
+        localStorage.removeItem("isDark");
+        document.documentElement.classList.toggle("dark");
+    } else {
+        localStorage.setItem("isDark", true);
+        document.documentElement.classList.toggle("dark");
+    }
 }
 
 onMounted(() => {
@@ -100,7 +140,6 @@ onMounted(() => {
                         Change Theme
                     </button>
                 </div>
-
                 <DropdownMenu>
                     <DropdownMenuTrigger>
                         <button

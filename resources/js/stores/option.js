@@ -7,6 +7,8 @@ export const useOption = defineStore("option", () => {
     const url = ref(import.meta.env.VITE_API_URL || "");
     const name = ref(import.meta.env.VITE_NAME || "");
     const token = ref("");
+    const roleId = ref(0);
+    const roleList = ref([]);
     const secretKey = import.meta.env.VITE_SECRET || "secret_123";
 
     const setEncryptedTokenCookie = (tokenValue) => {
@@ -32,11 +34,28 @@ export const useOption = defineStore("option", () => {
     };
 
     token.value = getDecryptedTokenCookie() || "";
+    roleId.value = localStorage.getItem("roleId") ?? 0;
 
+    const updateRoleList = (e) => {
+        roleList.value = e;
+    };
+    const updateRoleId = (e) => {
+        roleId.value = e;
+        localStorage.setItem("roleId", e);
+    };
     const updateToken = (newToken) => {
         token.value = newToken;
         setEncryptedTokenCookie(newToken);
     };
 
-    return { url, name, token, updateToken };
+    return {
+        url,
+        name,
+        token,
+        updateToken,
+        roleId,
+        updateRoleId,
+        roleList,
+        updateRoleList,
+    };
 });

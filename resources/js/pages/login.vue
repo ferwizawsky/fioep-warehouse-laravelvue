@@ -14,8 +14,6 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/toast";
-import Toaster from "@/components/ui/toast/Toaster.vue";
 import { useOption } from "@/stores/option";
 import { useRouter } from "vue-router";
 import { useNotif } from "@/stores/notif";
@@ -43,14 +41,15 @@ const { handleSubmit } = useForm({
 });
 
 async function login(e) {
-    notif.make("TESTETET");
     try {
         const { data } = await useFetch("POST", "/auth/login", {
             username: e.username,
             password: e.password,
         });
         option.updateToken(data.token);
+        option.updateRoleId(data?.user?.role_id);
         router.push("/admin");
+        notif.make("Welcome !");
     } catch (error) {}
 }
 
@@ -124,7 +123,7 @@ const onSubmit = handleSubmit((values) => {
                 <Button type="submit" class="px-20"> Sign In </Button>
             </div>
         </form>
-        <div class="pt-10">
+        <!-- <div class="pt-10">
             <div>
                 <button
                     class="px-4 py-2 mx-auto border flex gap-2 border-slate-200 dark:border-slate-700 rounded-lg text-slate-700 dark:text-slate-200 hover:border-slate-400 dark:hover:border-slate-500 hover:text-slate-900 dark:hover:text-slate-300 hover:shadow transition duration-150"
@@ -138,8 +137,6 @@ const onSubmit = handleSubmit((values) => {
                     <span>Login with Google</span>
                 </button>
             </div>
-        </div>
-
-        <Toaster />
+        </div> -->
     </div>
 </template>
