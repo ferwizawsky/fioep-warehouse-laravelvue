@@ -18,6 +18,9 @@ Route::prefix('auth')
         Route::middleware('auth:sanctum')->get('profile', 'profile');
     });
 
+
+Route::get('/purchase-export', [PurchaseController::class, 'export']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('supplier', SupplierController::class);
     Route::apiResource('storage', WarehouseStorageController::class);

@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PurchasesExport;
 use App\Http\Resources\PurchaseResources;
 use Illuminate\Http\Request;
 use App\Models\Purchase;
 use App\Models\PurchaseMaterial;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PurchaseController extends Controller
 {
+
+    public function export()
+    {
+        return Excel::download(new PurchasesExport, 'purchases.xlsx');
+    }
     // Method untuk mengambil semua purchase
     public function index(Request $request)
     {
