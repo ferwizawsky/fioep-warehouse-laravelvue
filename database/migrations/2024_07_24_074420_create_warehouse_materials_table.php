@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('warehouse_materials', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('generated_code')->unique();
+            $table->string('quality')->default('good');
             $table->foreignId('material_id')->constrained('materials');
-            $table->foreignId('warehouse_id')->constrained('warehouses');
+            $table->foreignId('warehouse_id')->constrained('warehouses')->onDelete('cascade');;
             $table->timestamps();
         });
     }

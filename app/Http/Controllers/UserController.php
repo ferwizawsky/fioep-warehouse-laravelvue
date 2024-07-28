@@ -12,7 +12,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $data = User::where("name", "like", "%" . $request->name . "%")->paginate($request->limit ?? 10);
+        $data = User::where("search", "like", "%" . $request->name . "%")->paginate($request->limit ?? 10);
         return UserResource::collection($data);
     }
 

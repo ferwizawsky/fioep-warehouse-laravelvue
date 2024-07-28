@@ -17,18 +17,21 @@ class MaterialSeeder extends Seeder
             [
                 'name' => 'Material A',
                 'code' => 'MAT001',
+                'img' => 'https://resume-beta.fioep.com/profile.jpg',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Material B',
                 'code' => 'MAT002',
+                'img' => 'https://fioep.com/img/bot1-min.png',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'name' => 'Material C',
                 'code' => 'MAT003',
+                'img' => 'https://resume-beta.fioep.com/profile.jpg',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
