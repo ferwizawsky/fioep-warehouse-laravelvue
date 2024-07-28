@@ -65,7 +65,7 @@ class WarehouseController extends Controller
         }
 
         $purchase = Purchase::with('materials')->find($request->purchase_id);
-        if (!$purchase || $purchase?->status != 'approved') {
+        if (!$purchase || $purchase?->status != 'processed') {
             return response()->json(["message" => "purchase not found"], 404);
         }
 
@@ -79,17 +79,18 @@ class WarehouseController extends Controller
         ]);
 
         foreach ($purchase?->materials as $material) {
-            WarehouseMaterial::create([
-                'warehouse_id' => $warehouse->id,
-                'material_id' => $material->material_id,
-                'generated_code' => $this->generateUniqueCode(),
-            ]);
+            for ($x = 0; $x < $purchase?->quantity; $x++) {
+                WarehouseMaterial::create([
+                    'warehouse_id' => $warehouse->id,
+                    'material_id' => $material->material_id,
+                    'generated_code' => $this->generateUniqueCode(),
+                ]);
+            }
         }
         $purchase->update([
             'status' => "completed",
         ]);
-
-        return new WarehouseResources($warehouse->load('purchase'));
+        return new WarehouseResources($warehouse->load(['purchase']));
     }
 
 
