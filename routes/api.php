@@ -18,9 +18,6 @@ Route::prefix('auth')
         Route::middleware('auth:sanctum')->get('profile', 'profile');
     });
 
-
-Route::get('/purchase-export', [PurchaseController::class, 'export']);
-
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('supplier', SupplierController::class);
     Route::apiResource('storage', WarehouseStorageController::class);
@@ -38,6 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
             });
         Route::post('/purchase/{id}/process', [PurchaseController::class, 'statusToProcessed']);
         Route::delete('/purchases/{id}', [PurchaseController::class, 'destroy'])->middleware('role:2');
+        Route::get('/purchase-export', [PurchaseController::class, 'export'])->middleware('role:2');
         Route::post('/purchase/{id}/approval', [PurchaseController::class, 'approval'])->middleware('role:2');
     });
 
