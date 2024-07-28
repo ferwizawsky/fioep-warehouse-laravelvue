@@ -1,4 +1,5 @@
 import { useOption } from "@/stores/option";
+import { useNotif } from "@/stores/notif";
 import axios from "axios";
 
 export const useFetch = async (method = "GET", request = "/", opts) => {
@@ -31,17 +32,19 @@ export const useFetch = async (method = "GET", request = "/", opts) => {
 
 export const useMyFetch = async (method = "GET", request = "/", opts) => {
     const option = useOption();
+    const notif = useNotif();
     let header_option = {
         Accept: "application/json",
     };
     let url = option.url;
-    if (option?.token) {
+    if (option.token) {
         header_option = {
             // Authorization: auth?.token,
             authorization: "Bearer " + option?.token,
             Accept: "application/json",
         };
     }
+    notif.loading = true;
     try {
         const response = await axios({
             method: method,
@@ -55,8 +58,29 @@ export const useMyFetch = async (method = "GET", request = "/", opts) => {
     } catch (error) {
         // Handle error
         if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
+            if (error.response.data?.errors) {
+                for (let x in error.response.data?.errors) {
+                    notif.make(
+                        error.response.data?.errors[x]?.length
+                            ? error.response.data?.errors[x]?.[0]
+                                  ?.replace("field is required", "Wajib Diisi")
+                                  ?.replace("The", "Data Input")
+                            : error.response.data?.errors[x],
+                        {
+                            delay: 5000,
+                            type: "danger",
+                            reverse: false,
+                        }
+                    );
+                }
+            } else if (error.response.data?.message) {
+                notif.make(error.response.data?.message, {
+                    delay: 5000,
+                    type: "danger",
+                    reverse: false,
+                });
+            }
+
             console.error("Response error:", error.response.data);
             console.error("Status code:", error.response.status);
             console.error("Headers:", error.response.headers);
@@ -69,6 +93,73 @@ export const useMyFetch = async (method = "GET", request = "/", opts) => {
         }
 
         throw error; // rethrow the error to propagate it further if needed
+    } finally {
+        notif.loading = false;
+    }
+};
+
+export const useBlobFetch = async (method = "GET", request = "/", opts) => {
+    const option = useOption();
+    const notif = useNotif();
+    let header_option = {
+        Accept: "application/json",
+    };
+    let url = option.url;
+    if (option.token) {
+        header_option = {
+            // Authorization: auth?.token,
+            authorization: "Bearer " + option?.token,
+            Accept: "application/json",
+        };
+    }
+    notif.loading = true;
+    try {
+        const response = await axios({
+            method: method,
+            url: `${url}${request}`,
+            data: opts,
+            responseType: "blob",
+            headers: header_option,
+        });
+        return response;
+    } catch (error) {
+        // Handle error
+        if (error.response) {
+            if (error.response.data?.errors) {
+                for (let x in error.response.data?.errors) {
+                    notif.make(
+                        error.response.data?.errors[x]?.length
+                            ? error.response.data?.errors[x]
+                            : error.response.data?.errors[x],
+                        {
+                            delay: 5000,
+                            type: "danger",
+                            reverse: false,
+                        }
+                    );
+                }
+            } else if (error.response.data?.message) {
+                notif.make(error.response.data?.message, {
+                    delay: 5000,
+                    type: "danger",
+                    reverse: false,
+                });
+            }
+
+            console.error("Response error:", error.response.data);
+            console.error("Status code:", error.response.status);
+            console.error("Headers:", error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error("No response received:", error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error("Request setup error:", error.message);
+        }
+
+        throw error; // rethrow the error to propagate it further if needed
+    } finally {
+        notif.loading = false;
     }
 };
 

@@ -56,6 +56,18 @@ const list = [
         text: "Purchase",
         roleId: [1, 2, 3, 4, 5],
     },
+
+    {
+        to: "/admin/warehouse",
+        text: "Warehouse",
+        roleId: [1, 4, 5],
+    },
+    {
+        to: "/admin/storage",
+        text: "Storage",
+        roleId: [1, 4, 5],
+    },
+
     {
         to: "/admin/master",
         text: "Master Data",

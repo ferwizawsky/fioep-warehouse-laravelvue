@@ -56,5 +56,43 @@ export default {
             name: "Admin Master Action",
             component: () => import("@/pages/admin/master/id.vue"),
         },
+
+        {
+            path: "purchase",
+            name: "Admin Purchase",
+            component: () => import("@/pages/admin/purchase/index.vue"),
+        },
+        {
+            path: "purchase/:name/:id",
+            name: "Admin Purchase Detail",
+            component: () => import("@/pages/admin/purchase/id.vue"),
+        },
+        {
+            path: "purchase/:name",
+            name: "Admin Purchase Action",
+            component: () => import("@/pages/admin/purchase/id.vue"),
+        },
+
+        {
+            path: "warehouse",
+            name: "Admin Warehouse",
+            component: () => import("@/pages/admin/warehouse/index.vue"),
+        },
+        {
+            path: "warehouse/:name/:id",
+            name: "Admin Warehouse Detail",
+            component: () => import("@/pages/admin/warehouse/id.vue"),
+        },
+        {
+            path: "warehouse/:name",
+            name: "Admin Warehouse Action",
+            component: () => import("@/pages/admin/warehouse/id.vue"),
+        },
+
+        {
+            path: "storage",
+            name: "Admin Storage",
+            component: () => import("@/pages/admin/storage/index.vue"),
+        },
     ],
 };

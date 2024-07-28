@@ -36,70 +36,63 @@ import { useRouter } from "vue-router";
 import FunctionButton from "@/components/inkia/table/FunctionButton.vue";
 import { useMyFetch } from "@/composables/fetch";
 import { useNotif } from "@/stores/notif";
-import { useMaster } from "@/stores/master";
+import { dateFormatter } from "@/composables/timeFormatter";
+import { useOption } from "@/stores/option";
 
-const master = useMaster();
+const option = useOption();
 const notif = useNotif();
 const router = useRouter();
 const route = useRoute();
 const page = ref(1);
+const search = ref("");
+const listData = ref([]);
+const selectedItem = ref([]);
+const limitPaginate = ref(10);
+const meta = ref({});
 
-const listMenu = [
-    {
-        name: "materials",
-        key: ["img", "name", "code"],
-    },
-    {
-        name: "suppliers",
-        key: ["name", "description"],
-    },
-    {
-        name: "storages",
-        key: ["name", "description"],
-    },
-];
-const selectedMenuIndex = ref(0);
+onMounted(() => {
+    if (route.query?.page) page.value = route.query?.page;
+    getData();
+});
 
-onMounted(() => {});
+async function getData() {
+    listData.value = [];
+    try {
+        const { data } = await useMyFetch(
+            "GET",
+            `/user?search=${search.value}&page=${page.value}&limit=${limitPaginate.value}`
+        );
+        listData.value = [...data.data];
+        meta.value = { ...data.meta };
+    } catch (e) {}
+}
 
 async function deleteData(e) {
     try {
-        const { data } = await useMyFetch(
-            "delete",
-            `/${listMenu[selectedMenuIndex.value]?.name?.substring(
-                0,
-                listMenu[selectedMenuIndex.value]?.name.length - 1
-            )}/${e.id}`
-        );
-        master.getData();
-        notif.make(`Sukses Delete data`);
+        const { data } = await useMyFetch("POST", `/user/${e.id}/delete`);
+        getData();
+        notif.make(`Sukses Update data`);
     } catch (error) {
     } finally {
     }
+}
+
+function setPage(e) {
+    router.push(`${route.path}?page=${e}`);
+    page.value = e;
+    getData();
 }
 </script>
 <template>
     <div class="pt-4">
         <div class="lg:flex items-center justify-between mb-6">
             <div class="space-x-4">
-                <RouterLink
-                    :to="`${route.path}/add?index=${selectedMenuIndex}`"
-                >
+                <RouterLink :to="`${route.path}/add`">
                     <Button variant="outline">Create</Button>
                 </RouterLink>
             </div>
             <div class="flex items-center space-x-4">
-                <Button
-                    v-for="(item, index) in listMenu"
-                    @click="selectedMenuIndex = index"
-                    class="uppercase"
-                    :variant="
-                        index == selectedMenuIndex ? 'primary' : 'default'
-                    "
-                >
-                    {{ listMenu[index]?.name }}
-                </Button>
-                <!-- <form class="relative" @submit.prevent="getData()">
+                <form class="relative" @submit.prevent="getData()">
                     <Input
                         v-model="search"
                         class="pr-8"
@@ -108,49 +101,48 @@ async function deleteData(e) {
                     <Search
                         class="w-4 absolute top-2 right-3 cursor-pointer text-foreground/50"
                     />
-                </form> -->
+                </form>
             </div>
         </div>
         <Table>
             <TableHeader>
                 <TableRow>
                     <TableHead class=""> No. </TableHead>
-                    <TableHead
-                        v-for="item in listMenu[selectedMenuIndex]?.key"
-                        class="capitalize"
-                        >{{ item }}</TableHead
-                    >
+                    <TableHead class=""> Name</TableHead>
+                    <TableHead>Username</TableHead>
+                    <TableHead>E-mail</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead> Created At </TableHead>
                     <TableHead> Action </TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
-                <TableRow
-                    v-for="(item, index) in master?.listMaster?.[
-                        listMenu[selectedMenuIndex]?.name
-                    ]"
-                >
+                <TableRow v-for="(item, index) in listData">
                     <TableCell>{{ (page - 1) * 10 + index + 1 }}</TableCell>
-                    <TableCell v-for="x in listMenu[selectedMenuIndex]?.key">
-                        <img
-                            v-if="x == 'img'"
-                            :src="item?.[x]"
-                            class="w-10 h-10 object-cover rounded-full"
-                        />
-                        <span v-else>{{ item?.[x] }}</span>
+                    <TableCell class="font-medium">
+                        {{ item.name }}
+                    </TableCell>
+                    <TableCell>{{ item.username }}</TableCell>
+                    <TableCell>{{ item.email }}</TableCell>
+                    <TableCell class="capitalize">
+                        {{
+                            option.roleList
+                                ?.find((e) => e?.id == item.role_id)
+                                ?.name?.replace("_", " ")
+                        }}
+                    </TableCell>
+                    <TableCell class="capitalize">
+                        {{ dateFormatter(item.created_at) }}
                     </TableCell>
                     <TableCell class="flex items-center space-x-2">
-                        <!-- <RouterLink
-                            :to="`${route.path}/detail/${item?.id}?index=${selectedMenuIndex}`"
-                        >
+                        <RouterLink :to="`${route.path}/detail/${item?.id}`">
                             <FunctionButton
                                 class="bg-primary/20 hover:bg-primary/50 text-primary"
                             >
                                 <FileText class="w-4 h-4" />
                             </FunctionButton>
-                        </RouterLink> -->
-                        <RouterLink
-                            :to="`${route.path}/edit/${item?.id}?index=${selectedMenuIndex}&no=${index}`"
-                        >
+                        </RouterLink>
+                        <RouterLink :to="`${route.path}/edit/${item?.id}`">
                             <FunctionButton
                                 class="bg-primary/20 hover:bg-primary/50 text-primary"
                             >
@@ -191,5 +183,14 @@ async function deleteData(e) {
                 </TableRow>
             </TableBody>
         </Table>
+
+        <Paginate
+            @move="setPage($event)"
+            :page="page"
+            :list="meta?.links"
+            :meta="meta"
+            :limit-paginate="limitPaginate"
+            @update="limitPaginate = $event"
+        />
     </div>
 </template>
