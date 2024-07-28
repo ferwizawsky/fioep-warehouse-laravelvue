@@ -18,45 +18,46 @@ Route::prefix('auth')
         Route::middleware('auth:sanctum')->get('profile', 'profile');
     });
 
-Route::apiResource('supplier', SupplierController::class);
-Route::apiResource('storage', WarehouseStorageController::class);
-Route::apiResource('material', MaterialController::class);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('supplier', SupplierController::class);
+    Route::apiResource('storage', WarehouseStorageController::class);
+    Route::apiResource('material', MaterialController::class);
 
-Route::prefix('purchase')
-    // ->middleware('auth:sanctum')
-    ->controller(PurchaseController::class)
-    ->group(function () {
-        Route::get('/', 'index');
-        Route::get('/{id}', 'show');
-        Route::post('/', 'store');
-        // Route::post('/{id}/approval', 'approval'); 
-        // Route::post('/{id}', 'delete');
+
+
+    Route::middleware('role:2|1|3')->group(function () {
+        Route::prefix('purchase')
+            ->controller(PurchaseController::class)
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{id}', 'show');
+                Route::post('/', 'store');
+            });
+        Route::post('/purchase/{id}/process', [PurchaseController::class, 'statusToProcessed']);
+        Route::delete('/purchases/{id}', [PurchaseController::class, 'destroy'])->middleware('role:2');
+        Route::post('/purchase/{id}/approval', [PurchaseController::class, 'approval'])->middleware('role:2');
     });
 
-
-Route::prefix('warehouse-material')
-    // ->middleware('auth:sanctum')
-    ->controller(WarehouseMaterialController::class)
-    ->group(function () {
-        Route::get('/', 'index');
-        Route::get('/{id}', 'show');
-        Route::post('/', 'update');
-        // Route::post('/{id}/approval', 'approval'); 
-        // Route::post('/{id}', 'delete');
+    Route::middleware('role:1|4')->group(function () {
+        Route::prefix('warehouse-material')
+            ->controller(WarehouseMaterialController::class)
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{id}', 'show');
+                Route::post('/', 'update');
+            });
+        Route::prefix('warehouse')
+            ->controller(WarehouseController::class)
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/list-processed-purchase', 'indexPurchase');
+                Route::get('/{id}', 'show');
+                Route::post('/', 'store');
+                // Route::post('/{id}', 'delete');
+            });
     });
-Route::prefix('warehouse')
-    ->controller(WarehouseController::class)
-    ->group(function () {
-        Route::get('/', 'index');
-        Route::get('/list-processed-purchase', 'indexPurchase');
-        Route::get('/{id}', 'show');
-        Route::post('/', 'store');
-        // Route::post('/{id}', 'delete');
-    });
+});
 
-Route::post('/purchase/{id}/process', [PurchaseController::class, 'statusToProcessed']);
-Route::post('/purchase/{id}/approval', [PurchaseController::class, 'approval']);
-Route::delete('/purchases/{id}', [PurchaseController::class, 'destroy']);
 
 Route::prefix('user')
     ->middleware('auth:sanctum')
