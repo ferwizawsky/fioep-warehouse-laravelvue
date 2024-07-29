@@ -4,7 +4,11 @@ import Cookies from "js-cookie";
 import CryptoJS from "crypto-js";
 
 export const useOption = defineStore("option", () => {
-    const url = ref(import.meta.env.VITE_API_URL || "");
+    const url = ref(
+        document.head
+            .querySelector("meta[name=base-url]")
+            .getAttribute("content") + "/api" || ""
+    );
     const name = ref(import.meta.env.VITE_NAME || "");
     const token = ref("");
     const roleId = ref(0);
