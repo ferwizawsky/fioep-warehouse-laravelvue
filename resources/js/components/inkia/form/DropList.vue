@@ -37,10 +37,10 @@ watch(
             <SelectGroup>
                 <SelectItem
                     v-for="item in props?.list"
-                    :value="String(item.val)"
+                    :value="String(item.id)"
                     class="uppercase"
                 >
-                    {{ item?.text?.replace("_", " ") }}
+                    {{ item?.name?.replace("_", " ") }}
                 </SelectItem>
             </SelectGroup>
         </SelectContent>

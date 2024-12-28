@@ -57,7 +57,7 @@ onMounted(() => {
                 <div class="f-input-group mb-4">
                     <div>Roles</div>
                     <div class=" ">
-                        <DropdownSearch
+                        <DropList
                             v-model="item.role_id"
                             :list="option?.roleList"
                             :disabled="
